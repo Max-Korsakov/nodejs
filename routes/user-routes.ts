@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import ASD from "express-joi-validation";
+import EJV from "express-joi-validation";
 
 import {
   getUsersList,
@@ -11,7 +11,7 @@ import {
 import { userBodySchema } from "../models";
 
 const userRouter: Router = express.Router();
-const validator = ASD.createValidator();
+const validator = EJV.createValidator();
 
 userRouter.post("/", validator.body(userBodySchema), createNewUser);
 userRouter.delete("/:id", deleteUser);

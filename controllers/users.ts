@@ -1,58 +1,69 @@
 import { Request, Response } from "express";
 
-import { getUserById, createUser, softDeleteUser, getAutoSuggestUsers } from "../services";
+import {
+  getUserById,
+  createUser,
+  softDeleteUser,
+  getAutoSuggestUsers,
+  updateUserData
+} from "../services";
+import { errorHandler } from "../utils";
 
-const getUsersList = async  (req: Request, res: Response)=> {
-  const { loginSubstring, limit } = req.query
+const getUsersList = async (req: Request, res: Response) => {
+  const { loginSubstring, limit } = req.query;
   try {
-    const userList = await getAutoSuggestUsers(loginSubstring as string, Number(limit))
-    if (!userList) throw new Error("Users not found");
-    res.status(200).json(userList);
+    const requesrResult = await getAutoSuggestUsers(
+      loginSubstring as string,
+      Number(limit)
+    );
+    if (requesrResult instanceof Error) throw requesrResult;
+    res.status(200).json(requesrResult);
   } catch (e) {
-    console.log(e);
+    errorHandler(res, e);
   }
 };
 
-const receiveUserById =async (req: Request, res: Response) => {
+const receiveUserById = async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  try {
+    let requesrResult = await getUserById(id);
+    if (requesrResult instanceof Error) throw requesrResult;
+    res.status(200).json(requesrResult);
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+
+const createNewUser = async (req: Request, res: Response) => {
+  try {
+    let requesrResult = await createUser(req.body);
+    if (requesrResult instanceof Error) throw requesrResult;
+    res.status(200).json(requesrResult);
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+
+const updateUser = async (req: Request, res: Response) => {
+  const id: any = req.params.id;
+  try {
+    let requesrResult: any = await updateUserData(req.body, id);
+    if (requesrResult instanceof Error) throw requesrResult;
+    res.status(200).json(requesrResult);
+  } catch (e) {
+    errorHandler(res, e);
+  }
+};
+
+const deleteUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
-    let user =await getUserById(id);
-    if (!user) throw new Error("User not found");
-    res.status(200).json(user);
+    let requesrResult: any = await softDeleteUser(id);
+    if (requesrResult instanceof Error) throw requesrResult;
+    res.status(200).json(requesrResult);
   } catch (e) {
-    console.log(e);
-  }
-};
-
-const createNewUser =async (req: Request, res: Response) => {
-  try {
-    let newUser = await createUser(req.body);
-    if (!newUser) throw new Error("User was not created");
-    res.status(200).json(newUser);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-const updateUser =async (req: Request, res: Response) => {
-  try {
-    let newUserData = await createUser(req.body);
-    if (!newUserData) throw new Error("User was not updated");
-    res.status(200).json(newUserData);
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-
-const deleteUser =async (req: Request, res: Response) => {
-  const id = req.params.id;
-  try {
-    let newUser = await softDeleteUser(id);
-    if (!newUser) throw new Error("User was not created");
-    res.status(200).json(newUser);
-  } catch (e) {
-    console.log(e);
+    errorHandler(res, e);
   }
 };
 
