@@ -46,7 +46,6 @@ const loginUser = async (req: Request, res: Response) => {
         });
         res.status(200).json(responce);
     } catch (e) {
-        console.log(e.response.data);
         errorHandler(res, req, e, e.response.status);
     }
 };
@@ -59,7 +58,6 @@ const createNewUser = async (req: Request, res: Response) => {
             url: `http://${authService.ip}:${authService.port}/register`,
             data: req.body
         });
-        console.log('creating user salt', passwordWithSolt);
         const { ip, port } = await getService(BASES.POSTGRESQL_SERVICE);
         const requestResult = await callService({
             method: 'post',

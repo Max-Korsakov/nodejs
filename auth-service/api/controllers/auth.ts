@@ -17,13 +17,11 @@ const login = async (req: Request, res: Response) => {
         });
         const user = candidate[0];
         if (user) {
-            console.log(req.body.password, user.password);
             // eslint-disable-next-line no-sync
             const passwordResult = bcrypt.compareSync(
                 req.body.password,
                 user.password
             );
-            console.log('compare', passwordResult);
             if (passwordResult) {
                 const token = jwt.sign(
                     {
@@ -54,7 +52,6 @@ const login = async (req: Request, res: Response) => {
 const register = async (req: Request, res: Response) => {
     try {
         const { ip, port } = await getService(BASES.POSTGRESQL_SERVICE);
-        console.log('base', ip, port);
         const candidate = await callService({
             method: 'post',
             url: `http://${ip}:${port}/api/users/findbylogin`,
@@ -69,7 +66,6 @@ const register = async (req: Request, res: Response) => {
             const salt = bcrypt.genSaltSync(10);
             // eslint-disable-next-line no-sync
             const password = bcrypt.hashSync(req.body.password, salt);
-            console.log('pass', password);
             res.status(200).json(password);
         }
     } catch (e) {

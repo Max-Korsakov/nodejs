@@ -1,54 +1,50 @@
 const express = require('express');
-const ServiceRegistry = require('./lib/ServiceRegistry')
+const ServiceRegistry = require('./lib/ServiceRegistry');
 
-const service = express()
+const service = express();
 
-module.exports = (config)=>{
-    const log = config.log();
+module.exports = (config) => {
+  const log = config.log();
 
-    const serviceRegistry = new ServiceRegistry(log)
+  const serviceRegistry = new ServiceRegistry(log);
 
-    if(service.get('env') === 'development'){
-        service.use((req,res,next)=>{
-            return next()
-        })
-    }
+  if (service.get('env') === 'development') {
+    service.use((req, res, next) => next());
+  }
 
-    service.put('/register/:servicename/:serviceversion/:serviceport', (req,res)=>{
-        console.log('register')
-       const {servicename, serviceversion, serviceport } = req.params;
+  service.put('/register/:servicename/:serviceversion/:serviceport', (req, res) => {
+    const { servicename, serviceversion, serviceport } = req.params;
 
-       const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
+    const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
 
-       const serviceKey = serviceRegistry.register(servicename, serviceversion, serviceip, serviceport)
-       return res.json({result: serviceKey})
-    })
+    const serviceKey = serviceRegistry.register(servicename, serviceversion, serviceip, serviceport);
+    return res.json({ result: serviceKey });
+  });
 
-    service.delete('/register/:servicename/:serviceversion/:serviceport', (req,res)=>{
-        const {servicename, serviceversion, serviceport } = req.params;
+  service.delete('/register/:servicename/:serviceversion/:serviceport', (req, res) => {
+    const { servicename, serviceversion, serviceport } = req.params;
 
-        const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
- 
-        const serviceKey = serviceRegistry.unregister(servicename, serviceversion, serviceip, serviceport)
-        return res.json({result: serviceKey})
-    })
+    const serviceip = req.connection.remoteAddress.includes('::') ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
 
-    service.get('/find/:servicename/:serviceversion', (req,res,next)=>{
-        const { servicename, serviceversion } = req.params;
-        const svc = serviceRegistry.get(servicename, serviceversion);
-        console.log(svc)
-        if(!svc) return res.status(404).json({result: 'Service not found'});
-        return res.json(svc)
-    })
+    const serviceKey = serviceRegistry.unregister(servicename, serviceversion, serviceip, serviceport);
+    return res.json({ result: serviceKey });
+  });
 
-    service.use((error, req,res,next)=>{
-        res.status(error.status || 500);
-        return res.json({
-            error: {
-                message: error.message,
-            }
-        })
-    })
+  service.get('/find/:servicename/:serviceversion', (req, res) => {
+    const { servicename, serviceversion } = req.params;
+    const svc = serviceRegistry.get(servicename, serviceversion);
+    if (!svc) return res.status(404).json({ result: 'Service not found' });
+    return res.json(svc);
+  });
 
-    return service
-}
+  service.use((error, req, res) => {
+    res.status(error.status || 500);
+    return res.json({
+      error: {
+        message: error.message,
+      },
+    });
+  });
+
+  return service;
+};

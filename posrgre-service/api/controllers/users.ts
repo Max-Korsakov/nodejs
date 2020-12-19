@@ -33,7 +33,6 @@ const receiveUserById = async (req: Request, res: Response) => {
 
 const receiveUserByLogin = async (req: Request, res: Response) => {
     const login = req.body.login;
-    console.log(login);
     try {
         let requesrResult: any = await userService.getUserByProperty({login});
         res.status(200).json(requesrResult);
@@ -57,7 +56,6 @@ const updateUser = async (req: Request, res: Response) => {
     const id: any = req.params.id;
     try {
         let requesrResult: any = await userService.updateUserData(req.body, id);
-        console.log(requesrResult);
         if (requesrResult instanceof Error) throw requesrResult;
         res.status(200).json(requesrResult);
     } catch (e) {

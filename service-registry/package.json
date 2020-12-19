@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "semver": "^7.3.4",
     "winston": "^3.3.3"
   },
   "devDependencies": {
